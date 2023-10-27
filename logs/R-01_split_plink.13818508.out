@@ -1,0 +1,116 @@
+PLINK v1.90b3.42 64-bit (20 Sep 2016)      https://www.cog-genomics.org/plink2
+(C) 2005-2016 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.log.
+Options in effect:
+  --bfile /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/wchs_geno002_full
+  --chr 1
+  --keep /projects/rpci/wchs/pnfioric/pgs_wchs/3048_updated_genotypes_wchs.fam
+  --make-bed
+  --out /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}
+
+64222 MB RAM detected; reserving 32111 MB for main workspace.
+1126724 variants loaded from .bim file.
+6692 people (0 males, 0 females, 6692 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.nosex
+.
+--keep: 3048 people remaining.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 3048 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+1126724 variants and 3048 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.bed
++
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.bim
++
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.fam
+... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99%done.
+PLINK v1.90b3.42 64-bit (20 Sep 2016)      https://www.cog-genomics.org/plink2
+(C) 2005-2016 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.log.
+Options in effect:
+  --bfile /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/wchs_geno002_full
+  --chr 2
+  --keep /projects/rpci/wchs/pnfioric/pgs_wchs/3048_updated_genotypes_wchs.fam
+  --make-bed
+  --out /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}
+
+64222 MB RAM detected; reserving 32111 MB for main workspace.
+1204252 variants loaded from .bim file.
+6692 people (0 males, 0 females, 6692 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.nosex
+.
+--keep: 3048 people remaining.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 3048 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+1204252 variants and 3048 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.bed
++
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.bim
++
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.fam
+... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99%done.
+PLINK v1.90b3.42 64-bit (20 Sep 2016)      https://www.cog-genomics.org/plink2
+(C) 2005-2016 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.log.
+Options in effect:
+  --bfile /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/wchs_geno002_full
+  --chr 3
+  --keep /projects/rpci/wchs/pnfioric/pgs_wchs/3048_updated_genotypes_wchs.fam
+  --make-bed
+  --out /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}
+
+64222 MB RAM detected; reserving 32111 MB for main workspace.
+1027796 variants loaded from .bim file.
+6692 people (0 males, 0 females, 6692 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.nosex
+.
+--keep: 3048 people remaining.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 3048 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+1027796 variants and 3048 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.bed
++
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.bim
++
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.fam
+... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99%done.
+PLINK v1.90b3.42 64-bit (20 Sep 2016)      https://www.cog-genomics.org/plink2
+(C) 2005-2016 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.log.
+Options in effect:
+  --bfile /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/wchs_geno002_full
+  --chr 4
+  --keep /projects/rpci/wchs/pnfioric/pgs_wchs/3048_updated_genotypes_wchs.fam
+  --make-bed
+  --out /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}
+
+64222 MB RAM detected; reserving 32111 MB for main workspace.
+1040753 variants loaded from .bim file.
+6692 people (0 males, 0 females, 6692 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.nosex
+.
+--keep: 3048 people remaining.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 3048 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+1040753 variants and 3048 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.bed
++
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.bim
++
+/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/gds_files/wchs_3048_chr{chr}.fam
+... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%

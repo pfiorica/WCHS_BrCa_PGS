@@ -1,0 +1,7 @@
+"Trait","N.of.Variants","N.of.Ambg","% Ambg","Total.Matched","% Total.Matched","Flipped.Mathced","% Flipped.Matched"
+"Breast_Cancer_313",313,0,0,224,71.57,164,52.4
+"AABCGS_black",89,0,0,84,94.38,35,39.33
+"Gao2022_BrCa",56943,0,0,525,0.92,437,0.77
+"Gao2022_ERNEG",28405,0,0,271,0.95,220,0.77
+"Gao2022_ERPOS",29309,0,0,263,0.9,223,0.76
+"Shieh2023",76,0,0,64,84.21,34,44.74

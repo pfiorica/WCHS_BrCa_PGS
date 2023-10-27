@@ -385,9 +385,13 @@ SupplementalTable_S6_coef_ERneg_ddac102.csv</code></pre>
 <p><code>ROR-p_PGS_Shieh_et_al_2023.xlsx</code> GRCh37</p>
 <p><code>PRS313_PGS000004_hmPOS_GRCh37.txt</code> GRCh37</p>
 <p><code>SupplementalTable_S4_coef_overall_hybrid_ddac102.csv</code>
-GRCh38</p>
-<p><code>SupplementalTable_S5_coef_ERpos_ddac102.csv</code> GRCh38</p>
-<p><code>SupplementalTable_S6_coef_ERneg_ddac102.csv</code> GRCh38</p>
+<del>GRCh38</del></p>
+<p><code>SupplementalTable_S5_coef_ERpos_ddac102.csv</code>
+<del>GRCh38</del></p>
+<p><code>SupplementalTable_S6_coef_ERneg_ddac102.csv</code>
+<del>GRCh38</del></p>
+<p><strong>The Gao files are all labeled hg38, but they are
+37.</strong></p>
 </div>
 <div id="genotypes" class="section level3">
 <h3>Genotypes</h3>
@@ -526,6 +530,91 @@ PGS000004_weights &lt;- PGS000004_full %&gt;%
 
 fwrite(shieh_weights, pgs.dir %&amp;% &quot;PGSShieh2023.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F)
 fwrite(PGS000004_weights, pgs.dir %&amp;% &quot;PGS000004.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F)</code></pre>
+<pre class="r"><code>## Gao 2022
+## ER POS
+gao_erpos&lt;- fread(pgs.dir %&amp;%&quot;SupplementalTable_S5_coef_ERpos_ddac102.csv&quot;, header = T) %&gt;% 
+  mutate(bed_chr= paste(&quot;chr&quot;, Chromosome, sep = &quot;&quot;)) %&gt;%
+  mutate(bed_pos1 = `Position, hg38`) %&gt;%
+  mutate(bed_pos2 = as.numeric(`Position, hg38`)+1)
+
+gao_erpos_bed&lt;-gao_erpos %&gt;% select(starts_with(&quot;bed_&quot;))
+fwrite(gao_erpos_bed, pgs.dir %&amp;% &quot;gao_erpos_bed.bed&quot;, col.names = F, sep = &quot;\t&quot;, quote = F, row.names = F)
+
+## Overall Breast Cancer          
+gao_brca&lt;- fread(pgs.dir %&amp;% &quot;SupplementalTable_S4_coef_overall_hybrid_ddac102.csv&quot;, header = T) %&gt;% 
+  mutate(bed_chr= paste(&quot;chr&quot;, Chromosome, sep = &quot;&quot;)) %&gt;%
+  mutate(bed_pos1 = `Position, hg38`) %&gt;%
+  mutate(bed_pos2 = as.numeric(`Position, hg38`)+1)
+
+gao_brca_bed&lt;-gao_brca %&gt;% select(starts_with(&quot;bed_&quot;))
+fwrite(gao_brca_bed, pgs.dir %&amp;% &quot;gao_brca_bed.bed&quot;, col.names = F, sep = &quot;\t&quot;, quote = F, row.names = F)
+
+
+## ER NEG
+gao_erneg&lt;-fread(pgs.dir %&amp;% &quot;SupplementalTable_S6_coef_ERneg_ddac102.csv&quot;, header = T)%&gt;% 
+  mutate(bed_chr= paste(&quot;chr&quot;, Chromosome, sep = &quot;&quot;)) %&gt;%
+  mutate(bed_pos1 = `Position, hg38`) %&gt;%
+  mutate(bed_pos2 = as.numeric(`Position, hg38`)+1)
+
+gao_erneg_bed&lt;-gao_erneg %&gt;% select(starts_with(&quot;bed_&quot;))
+fwrite(gao_erneg_bed, pgs.dir %&amp;% &quot;gao_erneg_bed.bed&quot;, col.names = F, sep = &quot;\t&quot;, quote = F, row.names = F)</code></pre>
+<pre class="r"><code>#ER POSITIVE
+gao_erpos_hg38_bed&lt;-fread(pgs.dir %&amp;% &quot;gao_erpos_hglft_genome_3d40a_c0b440.bed&quot;, header = F)%&gt;%
+  separate(V4, into = c(&quot;chr_37&quot;, &quot;pos_37&quot;), sep = &quot;:&quot;) %&gt;%
+  separate(pos_37, into = c(&quot;pos1&quot;,&quot;pos2&quot;), sep = &quot;-&quot;) %&gt;%
+  mutate(pos1=as.numeric(pos1))
+
+gao_erpos_full &lt;-left_join(gao_erpos, gao_erpos_hg38_bed, by = c(&quot;bed_chr&quot;=&quot;V1&quot;, &quot;bed_pos2&quot; = &quot;pos1&quot;)) %&gt;%
+  mutate(V2= if_else(is.na(V2)==TRUE, `Position, hg38`, V2 )) </code></pre>
+<pre><code>## Warning in left_join(gao_erpos, gao_erpos_hg38_bed, by = c(bed_chr = &quot;V1&quot;, : Detected an unexpected many-to-many relationship between `x` and `y`.
+## ℹ Row 7055 of `x` matches multiple rows in `y`.
+## ℹ Row 7054 of `y` matches multiple rows in `x`.
+## ℹ If a many-to-many relationship is expected, set `relationship =
+##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
+<pre class="r"><code>gao_erpos_full &lt;- gao_erpos_full %&gt;%  filter(!duplicated(gao_erpos_full))
+
+
+gao_erpos_weight &lt;- gao_erpos_full %&gt;%
+  select(effect_allele= `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef.`, chr_name=Chromosome , chr_pos=V2)
+
+
+#OVERAL BREAST CANCER
+gao_brca_hg38_bed&lt;-fread(pgs.dir %&amp;% &quot;gao_brca_hglft_genome_23ab2_c11ca0.bed&quot;, header = F)%&gt;%
+  separate(V4, into = c(&quot;chr_37&quot;, &quot;pos_37&quot;), sep = &quot;:&quot;) %&gt;%
+  separate(pos_37, into = c(&quot;pos1&quot;,&quot;pos2&quot;), sep = &quot;-&quot;) %&gt;%
+  mutate(pos1=as.numeric(pos1))
+
+gao_brca_full &lt;-left_join(gao_brca, gao_brca_hg38_bed, by = c(&quot;bed_chr&quot;=&quot;V1&quot;, &quot;bed_pos2&quot; = &quot;pos1&quot;)) %&gt;%
+  mutate(V2= if_else(is.na(V2)==TRUE, `Position, hg38`, V2 )) </code></pre>
+<pre><code>## Warning in left_join(gao_brca, gao_brca_hg38_bed, by = c(bed_chr = &quot;V1&quot;, : Detected an unexpected many-to-many relationship between `x` and `y`.
+## ℹ Row 13651 of `x` matches multiple rows in `y`.
+## ℹ Row 13650 of `y` matches multiple rows in `x`.
+## ℹ If a many-to-many relationship is expected, set `relationship =
+##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
+<pre class="r"><code>gao_brca_full &lt;- gao_brca_full %&gt;%  filter(!duplicated(gao_brca_full))
+
+gao_brca_weights&lt;- gao_brca_full %&gt;%
+  select(effect_allele= `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef for overall cancer`, chr_name=Chromosome , chr_pos=V2)
+
+#ER NEGATIVE
+gao_erneg_hg38_bed&lt;-fread(pgs.dir %&amp;% &quot;gao_erneg_hglft_genome_24d43_c121b0.bed&quot;, header = F)%&gt;%
+  separate(V4, into = c(&quot;chr_37&quot;, &quot;pos_37&quot;), sep = &quot;:&quot;) %&gt;%
+  separate(pos_37, into = c(&quot;pos1&quot;,&quot;pos2&quot;), sep = &quot;-&quot;) %&gt;%
+  mutate(pos1=as.numeric(pos1))
+
+gao_erneg_full &lt;-left_join(gao_erneg, gao_erneg_hg38_bed, by = c(&quot;bed_chr&quot;=&quot;V1&quot;, &quot;bed_pos2&quot; = &quot;pos1&quot;)) %&gt;%
+  mutate(V2= if_else(is.na(V2)==TRUE, `Position, hg38`, V2 )) 
+
+gao_erneg_full &lt;- gao_erneg_full %&gt;%  filter(!duplicated(gao_erneg_full))
+
+gao_erneg_weight&lt;-gao_erneg_full %&gt;%
+  select(effect_allele = `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef.`, chr_name=Chromosome , chr_pos=V2)
+
+
+#WRITE FILES
+fwrite(gao_brca_weights, pgs.dir %&amp;% &quot;PGSGao2022_BrCa.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F )
+fwrite(gao_erpos_weight, pgs.dir %&amp;% &quot;PGSGao2022_ERPOS.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F )
+fwrite(gao_erneg_weight, pgs.dir %&amp;% &quot;PGSGao2022_ERNEG.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F )</code></pre>
 </div>
 <div id="hg38" class="section level1">
 <h1>HG38</h1>
@@ -537,24 +626,7 @@ AABCGS_black&lt;- read_xlsx(pgs.dir %&amp;% &quot;AABCG_PRS_Black.xlsx&quot;) %&
 AABCGS_black_weights &lt;- AABCGS_black %&gt;%
   select(effect_allele, reference_allele, effect_weight=OVR_BETA, chr_name=Chr , chr_pos=bd38)
 
-fwrite(AABCGS_black_weights, pgs.dir %&amp;% &quot;PGSAABCGS_black.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F )
-
-## Gao 2022
-gao_erpos&lt;- fread(pgs.dir %&amp;%&quot;SupplementalTable_S5_coef_ERpos_ddac102.csv&quot;, header = T)
-gao_erpos_weight &lt;- gao_erpos %&gt;%
-  select(effect_allele= `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef.`, chr_name=Chromosome , chr_pos=`Position, hg38`)
-          
-gao_brca&lt;- fread(pgs.dir %&amp;% &quot;SupplementalTable_S4_coef_overall_hybrid_ddac102.csv&quot;, header = T)
-gao_brca_weights&lt;- gao_brca %&gt;%
-  select(effect_allele= `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef for overall cancer`, chr_name=Chromosome , chr_pos=`Position, hg38`)
-
-gao_erneg&lt;-fread(pgs.dir %&amp;% &quot;SupplementalTable_S6_coef_ERneg_ddac102.csv&quot;, header = T)
-gao_erneg_weight&lt;-gao_erneg %&gt;%
-  select(effect_allele = `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef.`, chr_name=Chromosome , chr_pos=`Position, hg38`)
-
-fwrite(gao_brca_weights, pgs.dir %&amp;% &quot;PGSGao2022_BrCa.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F )
-fwrite(gao_erpos_weight, pgs.dir %&amp;% &quot;PGSGao2022_ERPOS.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F )
-fwrite(gao_erneg_weight, pgs.dir %&amp;% &quot;PGSGao2022_ERNEG.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F )</code></pre>
+fwrite(AABCGS_black_weights, pgs.dir %&amp;% &quot;PGSAABCGS_black.txt&quot;, col.names = T, sep = &quot; &quot;, quote = F, row.names = F )</code></pre>
 </div>
 <div id="cleaning-genotype-files" class="section level1">
 <h1>Cleaning Genotype Files</h1>

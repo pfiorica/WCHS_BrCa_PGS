@@ -1,0 +1,34 @@
+[1] "p = 3"
+[1] "class of p is numeric"
+  effect_allele reference_allele effect_weight chr_name   chr_pos
+1           GAT                G  -0.003771818        1  99616047
+2             G                A   0.003940491        1  99640267
+3             C                T   0.003903901        1  99687368
+4             C                T  -0.001723056        1  99843560
+5             A                G  -0.001044949        1  99911425
+6             T                C  -0.002920281        1 100057127
+pop main
+processing chr 1
+processing chr 2
+processing chr 3
+processing chr 4
+processing chr 5
+processing chr 6
+processing chr 7
+processing chr 8
+processing chr 9
+processing chr 10
+processing chr 11
+processing chr 12
+processing chr 13
+processing chr 14
+processing chr 15
+processing chr 16
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr16/chr16.5.gds
+processing chr 17
+processing chr 18
+processing chr 19
+processing chr 20
+processing chr 21
+processing chr 22
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr22/chr22.1.gds

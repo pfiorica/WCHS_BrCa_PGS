@@ -1,0 +1,311 @@
+---
+title: "Calculating PGS for WCHS"
+author: "Peter Fiorica"
+date: "2023-10-17"
+output: html_document
+---
+
+```{r, include = FALSE}
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(gridExtra))
+
+"%&%"=function(a,b) paste(a,b,sep="")
+```
+
+# Introduction and Background
+### Code
+This document is intended to cover an overview and background of calculating 6 different PGS for WCHS individuals. I will be basing my code off of Haiyang Sheng's code for calculating PGS in CCR. I am using the directory for guidance `/projects/rpci/songyao/Haiyang/PGS/SBP.Diabetes.2PGS_08122023`. 
+
+### Directories
+My working directory will be based in `/projects/rpci/wchs/pnfioric/pgs_wchs/`
+
+### PGS
+We will be calculating the PGS from the following files:
+```
+AABCG_PRS_Black.xlsx
+ROR-p_PGS_Shieh_et_al_2023.xlsx
+SupplementalTable_S5_coef_ERpos_ddac102.csv
+PRS313_PGS000004_hmPOS_GRCh37.txt
+SupplementalTable_S4_coef_overall_hybrid_ddac102.csv
+SupplementalTable_S6_coef_ERneg_ddac102.csv
+```
+`AABCG_PRS_Black.xlsx` GRCh38
+
+`ROR-p_PGS_Shieh_et_al_2023.xlsx` GRCh37
+
+`PRS313_PGS000004_hmPOS_GRCh37.txt` GRCh37
+
+`SupplementalTable_S4_coef_overall_hybrid_ddac102.csv` ~~GRCh38~~
+
+`SupplementalTable_S5_coef_ERpos_ddac102.csv` ~~GRCh38~~
+
+`SupplementalTable_S6_coef_ERneg_ddac102.csv` ~~GRCh38~~
+
+**The Gao files are all labeled hg38, but they are 37.**
+
+### Genotypes
+We will be using WCHS genotypes for 6692 (500 AABC + 3961 AMBER + 2231 WCHS) individuals. These genotypes are in hg38 build. They were filtered using the NHBLI TOPMed Consortium reference panel. SNPs were filtered to keep snps with $R^{2}>0.3$ and MAF>0.01. After merging these, groups above genotypes, SNPs were kept with a genotype call rate >98%. 
+
+
+Apparently, these genotypes include duplicates. I am not going to run the IBD pruning to remove them, but I am going to identify the duplicate IDs.
+```{r}
+ID_key <- read_xlsx("C://Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/Pathways_GWAS_TILs/AABCGS_WCHS_IDs.xlsx")
+
+genotype_ids_full<-fread("C://Users/pe42518/Downloads/wchs_geno002_full.fam", header = F) 
+
+duplicates_to_remove <- c("NJ03536", "WC00537", "NJ09014", "NJ09141")
+geno_to_remove <- c("A006788", "A018806" , "A038363",  "A038456")
+#These are four genetic duplicates I identified from IBD pruning. See IBD_wchs_check.Rmd for more details. Karen Hulme and Rochelle Payne Ondracek identified that they were genotyped twice because they were initially enrolled as controls and later cases.
+ID_key <- ID_key %>% filter(!WCHS_ID %in% duplicates_to_remove)
+
+genotype_ids<- genotype_ids_full %>%
+  mutate(V1=sub("_.*$", "", V1))
+
+genotype_ids_w_AABCGS_ID <- genotype_ids %>% filter(V1 %in% ID_key$AABCGS_ID)
+genotype_ids_wo_AABCGS_ID <- genotype_ids %>% filter(!V1 %in% ID_key$AABCGS_ID)
+
+remaining_IDs<-ID_key %>% filter(!AABCGS_ID %in% genotype_ids_w_AABCGS_ID$V1)
+
+wchs_genotype_ids<-fread("C://Users/pe42518/Downloads/wchs_geno002_full.fam", header = F) %>%
+  mutate(V1=sub("^[^_]*_WCHS_", "", V1))
+
+table(remaining_IDs$AABCGS_ID %in% wchs_genotype_ids$V1)
+table(remaining_IDs$OriID %in% wchs_genotype_ids$V1)
+table(remaining_IDs$AABC_ID %in% wchs_genotype_ids$V1)
+table(remaining_IDs$WCHS_ID %in% wchs_genotype_ids$V1)
+
+table(remaining_IDs$AABCGS_ID %in% genotype_ids$V1)
+table(remaining_IDs$OriID %in% genotype_ids$V1)
+table(remaining_IDs$AABC_ID %in% genotype_ids$V1)
+table(remaining_IDs$WCHS_ID %in% genotype_ids$V1)
+
+
+updated_fam<- genotype_ids_full %>% filter(V2 %in% genotype_ids_w_AABCGS_ID$V2)
+fwrite(updated_fam, "C://Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/Pathways_GWAS_TILs/3044_updated_genotypes_wchs.fam", col.names = F, row.names = F, sep = " ", quote = F)
+
+missing_fam<- genotype_ids_full %>% filter(!V2 %in% genotype_ids_w_AABCGS_ID$V2)
+fwrite(missing_fam, "C://Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/Pathways_GWAS_TILs/3648_missing_IDs_genotypes_wchs.fam", col.names = F, row.names = F, sep = " ", quote = F)
+
+fwrite(remaining_IDs, "C://Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/Pathways_GWAS_TILs/IDs_wo_genotypes.txt", col.names = T, row.names = F, sep = " ", quote = F)
+```
+
+# Understanding Haiyang's Code
+
+`UKB.PGS_HS.R`
+
+1. Sets up an environment to read in PGS
+
+2. Reads in PGS weights from PGS Catalog files where the column names are rsID, Chr, position, effect allele, other allele, effect weight
+
+3. Creates a folder for each PGS.
+
+    a. Within each folder, he makes subdirectories for ethnicity that contain 3 files per chromosome: calculated score, number of missing/unmatched PGS variants, number of matched PGS variants.
+  
+4. Reads in each genotype by population, chromosome, and subchromosome file.
+
+5. Matches SNPs from genotype to weights
+
+6. Reports missing or present variants from SNPs and weights
+
+7. Calculates PGS
+
+8. Writes PGS file and log for each individual.
+    
+# Cleaning PGS Files
+```{r}
+pgs.dir<-"C://Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/WCHS_PGS_Analysis/BrCa_PRS/"
+#HG37
+#These files need to have their SNP positions lifted over. We will generated a BED file to uploaded the UCSC online liftover tool.
+#https://genome.ucsc.edu/cgi-bin/hgLiftOver
+
+Shieh <- read_xlsx(pgs.dir %&%"ROR-P PGS_Shieh et al 2023.xlsx") %>%
+  mutate(bed_chr= paste("chr", chr, sep = "")) %>%
+  mutate(bed_pos1 = position) %>%
+  mutate(bed_pos2 = as.numeric(position)+1)
+
+shieh_bed<-Shieh %>% select(starts_with("bed_"))
+
+PGS000004<- fread(pgs.dir %&% "PRS313_PGS000004_hmPOS_GRCh37.txt", header = T) %>%
+  mutate(bed_chr= paste("chr", chr_name, sep = "")) %>%
+  mutate(bed_pos1 = chr_position) %>%
+  mutate(bed_pos2 = as.numeric(chr_position)+1) 
+
+PGS000004_bed<-PGS000004 %>% select(starts_with("bed_"))
+
+fwrite(shieh_bed, pgs.dir %&%"shieh_bed.bed", col.names = F, row.names =F, sep = "\t", quote = F)
+fwrite(PGS000004_bed, pgs.dir %&%"PGS000004_bed.bed", col.names = F, row.names =F, sep = "\t", quote = F)
+```
+For both files, all SNPs were successfully lifted over. Now we can update the PGS.
+
+```{r}
+PGS000004_hg38_bed<-fread(pgs.dir %&% "PGS000004_hglft_genome_1afde_188450.bed", header = F) #%>%
+  #separate(V4, into = c("chr_38", "pos_38"), sep = ":") %>%
+  #separate(pos_38, into = c("pos1","pos2"), sep = "-")
+shieh_hg38_bed <- fread(pgs.dir %&% "Shieh_hglft_genome_1a6bd_187fa0.bed", header = F)#%>%
+  #separate(V4, into = c("chr_38", "pos_38"), sep = ":") %>%
+  #separate(pos_38, into = c("pos1","pos2"), sep = "-")
+
+shieh_full<- bind_cols(Shieh, shieh_hg38_bed)
+PGS000004_full<-bind_cols(PGS000004, PGS000004_hg38_bed)
+
+shieh_weights <- shieh_full %>%
+  select(effect_allele=risk, reference_allele=other, effect_weight=Coefficient, chr_name = chr , chr_pos=V2) 
+PGS000004_weights <- PGS000004_full %>%
+  select(effect_allele=effect_allele, reference_allele=other_allele, effect_weight=effect_weight, chr_name , chr_pos=V2) 
+
+fwrite(shieh_weights, pgs.dir %&% "PGSShieh2023.txt", col.names = T, sep = " ", quote = F, row.names = F)
+fwrite(PGS000004_weights, pgs.dir %&% "PGS000004.txt", col.names = T, sep = " ", quote = F, row.names = F)
+```
+
+```{r}
+## Gao 2022
+## ER POS
+gao_erpos<- fread(pgs.dir %&%"SupplementalTable_S5_coef_ERpos_ddac102.csv", header = T) %>% 
+  mutate(bed_chr= paste("chr", Chromosome, sep = "")) %>%
+  mutate(bed_pos1 = `Position, hg38`) %>%
+  mutate(bed_pos2 = as.numeric(`Position, hg38`)+1)
+
+gao_erpos_bed<-gao_erpos %>% select(starts_with("bed_"))
+fwrite(gao_erpos_bed, pgs.dir %&% "gao_erpos_bed.bed", col.names = F, sep = "\t", quote = F, row.names = F)
+
+## Overall Breast Cancer          
+gao_brca<- fread(pgs.dir %&% "SupplementalTable_S4_coef_overall_hybrid_ddac102.csv", header = T) %>% 
+  mutate(bed_chr= paste("chr", Chromosome, sep = "")) %>%
+  mutate(bed_pos1 = `Position, hg38`) %>%
+  mutate(bed_pos2 = as.numeric(`Position, hg38`)+1)
+
+gao_brca_bed<-gao_brca %>% select(starts_with("bed_"))
+fwrite(gao_brca_bed, pgs.dir %&% "gao_brca_bed.bed", col.names = F, sep = "\t", quote = F, row.names = F)
+
+
+## ER NEG
+gao_erneg<-fread(pgs.dir %&% "SupplementalTable_S6_coef_ERneg_ddac102.csv", header = T)%>% 
+  mutate(bed_chr= paste("chr", Chromosome, sep = "")) %>%
+  mutate(bed_pos1 = `Position, hg38`) %>%
+  mutate(bed_pos2 = as.numeric(`Position, hg38`)+1)
+
+gao_erneg_bed<-gao_erneg %>% select(starts_with("bed_"))
+fwrite(gao_erneg_bed, pgs.dir %&% "gao_erneg_bed.bed", col.names = F, sep = "\t", quote = F, row.names = F)
+
+```
+
+
+```{r}
+#ER POSITIVE
+gao_erpos_hg38_bed<-fread(pgs.dir %&% "gao_erpos_hglft_genome_3d40a_c0b440.bed", header = F)%>%
+  separate(V4, into = c("chr_37", "pos_37"), sep = ":") %>%
+  separate(pos_37, into = c("pos1","pos2"), sep = "-") %>%
+  mutate(pos1=as.numeric(pos1))
+
+gao_erpos_full <-left_join(gao_erpos, gao_erpos_hg38_bed, by = c("bed_chr"="V1", "bed_pos2" = "pos1")) %>%
+  mutate(V2= if_else(is.na(V2)==TRUE, `Position, hg38`, V2 )) 
+
+gao_erpos_full <- gao_erpos_full %>%  filter(!duplicated(gao_erpos_full))
+
+
+gao_erpos_weight <- gao_erpos_full %>%
+  select(effect_allele= `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef.`, chr_name=Chromosome , chr_pos=V2)
+
+
+#OVERAL BREAST CANCER
+gao_brca_hg38_bed<-fread(pgs.dir %&% "gao_brca_hglft_genome_23ab2_c11ca0.bed", header = F)%>%
+  separate(V4, into = c("chr_37", "pos_37"), sep = ":") %>%
+  separate(pos_37, into = c("pos1","pos2"), sep = "-") %>%
+  mutate(pos1=as.numeric(pos1))
+
+gao_brca_full <-left_join(gao_brca, gao_brca_hg38_bed, by = c("bed_chr"="V1", "bed_pos2" = "pos1")) %>%
+  mutate(V2= if_else(is.na(V2)==TRUE, `Position, hg38`, V2 )) 
+
+gao_brca_full <- gao_brca_full %>%  filter(!duplicated(gao_brca_full))
+
+gao_brca_weights<- gao_brca_full %>%
+  select(effect_allele= `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef for overall cancer`, chr_name=Chromosome , chr_pos=V2)
+
+#ER NEGATIVE
+gao_erneg_hg38_bed<-fread(pgs.dir %&% "gao_erneg_hglft_genome_24d43_c121b0.bed", header = F)%>%
+  separate(V4, into = c("chr_37", "pos_37"), sep = ":") %>%
+  separate(pos_37, into = c("pos1","pos2"), sep = "-") %>%
+  mutate(pos1=as.numeric(pos1))
+
+gao_erneg_full <-left_join(gao_erneg, gao_erneg_hg38_bed, by = c("bed_chr"="V1", "bed_pos2" = "pos1")) %>%
+  mutate(V2= if_else(is.na(V2)==TRUE, `Position, hg38`, V2 )) 
+
+gao_erneg_full <- gao_erneg_full %>%  filter(!duplicated(gao_erneg_full))
+
+gao_erneg_weight<-gao_erneg_full %>%
+  select(effect_allele = `ALT allele`, reference_allele = `REF allele`, effect_weight=`Coef.`, chr_name=Chromosome , chr_pos=V2)
+
+
+#WRITE FILES
+fwrite(gao_brca_weights, pgs.dir %&% "PGSGao2022_BrCa.txt", col.names = T, sep = " ", quote = F, row.names = F )
+fwrite(gao_erpos_weight, pgs.dir %&% "PGSGao2022_ERPOS.txt", col.names = T, sep = " ", quote = F, row.names = F )
+fwrite(gao_erneg_weight, pgs.dir %&% "PGSGao2022_ERNEG.txt", col.names = T, sep = " ", quote = F, row.names = F )
+```
+
+# HG38
+```{r}
+#AABCGS
+AABCGS_black<- read_xlsx(pgs.dir %&% "AABCG_PRS_Black.xlsx") %>%
+  separate(Allelesa, into = c("effect_allele", "reference_allele"), sep = "/") %>%
+  filter(!is.na(effect_allele))
+
+AABCGS_black_weights <- AABCGS_black %>%
+  select(effect_allele, reference_allele, effect_weight=OVR_BETA, chr_name=Chr , chr_pos=bd38)
+
+fwrite(AABCGS_black_weights, pgs.dir %&% "PGSAABCGS_black.txt", col.names = T, sep = " ", quote = F, row.names = F )
+
+
+```
+
+# Cleaning Genotype Files
+
+Haiyang's code uses genotype files that are in GDS format. I have never used this format before, but it looks like plink files can be converted to it with `snpgdsBED2GDS()` from the `SNPRelate` package in R. First, I am going to try this out with chromosome 22 to see if it will work. To do this, I am going to launch an interaction session on CCR and go forward with the following steps:
+
+  1. Pull the genotypes from chr 22 including only those 3048 individuals with matched IDs from WCHS.
+  2. Convert chr 22 to GDS
+  3. Input this file into Haiyang's PGS code.
+  
+  
+```
+salloc --reservation=ubhpc-future --qos=general-compute --partition=general-compute  --job-name "MyJob" --nodes=1 --ntasks=1 --mem=16G --time=04:30:00  
+srun --pty /bin/bash --login
+
+module load plink
+
+pwd
+#/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/
+
+plink --bfile /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/wchs_geno002_full --chr 22 --keep /projects/rpci/wchs/pnfioric/pgs_wchs/3048_updated_genotypes_wchs.fam --make-bed --out /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/wchs_3048_chr22
+
+```
+This quickly generated the chr 22 bfiles we need. From here, we will convert the to GDS. Initially, I ran `plink2gds.R` to convert plink to GDS files, but it turns out some of the chromosome files are too large to be read into R. Haiyang's code originally used 10 subchromosome files, so that is what we will do. To split these files into groups of 10, we run `split_subchromosome.py`. After dividing the chromosome files into even smaller chunks, we will then convert them to `.gds` files. We do this with the `plink2gds.R` script.
+
+
+# Calculating PGS.
+To calculate PGS, I ran `call_pgs_calc.sh` which calls `UKB.PGS_PNF1.R`. This R script requires an integer to specify which PGS from a folder of PGS's is going to be calculated. Since we only had six PGS, I specified the integers manually. 
+
+After this, I ran `merge_PNF.R`. This combines the PGS for each individual across all of their chromosomes. It also removes the 4 duplicate individuals that were identified in the process of calculating PGS. Lastly, I ran `merge.valid.nvar_PNF.R`, which provides summary information for the PGS calculated. 
+
+
+```{r}
+PGS_total<-fread(pgs.dir %&% "WCHS_BrCa_6_PGS.xlsx.csv", header = T)
+summary(PGS_total$PGS_Breast_Cancer_313)
+summary(PGS_total$PGS_AABCGS_black)
+summary(PGS_total$PGS_Gao2022_BrCa)
+summary(PGS_total$PGS_Gao2022_ERNEG)
+summary(PGS_total$PGS_Gao2022_ERPOS)
+summary(PGS_total$PGS_Shieh2023)
+
+# Gather data into long format
+data_long <- melt(PGS_total, id.vars = "samples", variable.name = "PGS")
+# Filter for columns starting with "PGS_"
+data_long <- data_long[grepl("^PGS_", PGS)]
+
+# Create histograms
+ggplot(data_long, aes(value, fill= PGS)) + 
+    geom_histogram(bins = 25, color = "black") + 
+    facet_wrap(~PGS, scales = 'free_x') + theme_bw() + guides(fill="none")
+
+```

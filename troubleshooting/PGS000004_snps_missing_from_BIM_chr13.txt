@@ -1,0 +1,3 @@
+effect_allele	reference_allele	effect_weight	chr_name	chr_pos	pgs
+A	G	0.0424	13	32265853	PGS000004
+T	A	0.2687	13	32398489	PGS000004

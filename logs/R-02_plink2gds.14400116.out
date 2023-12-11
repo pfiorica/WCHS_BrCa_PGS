@@ -1,0 +1,155 @@
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.1.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.1.bed'
+        SNP-major mode (Sample X SNP), 76.4M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.1.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.1.bim'
+Fri Dec  8 10:11:27 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 105137 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 4s
+Fri Dec  8 10:11:31 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.1.gds' (77.1M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.1.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.1.gds.tmp' (77.1M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.2.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.2.bed'
+        SNP-major mode (Sample X SNP), 63.9M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.2.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.2.bim'
+Fri Dec  8 10:11:33 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 87989 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 3s
+Fri Dec  8 10:11:36 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.2.gds' (64.6M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.2.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.2.gds.tmp' (64.6M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.3.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.3.bed'
+        SNP-major mode (Sample X SNP), 45.7M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.3.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.3.bim'
+Fri Dec  8 10:11:38 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 62871 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 2s
+Fri Dec  8 10:11:40 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.3.gds' (46.1M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.3.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.3.gds.tmp' (46.1M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.4.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.4.bed'
+        SNP-major mode (Sample X SNP), 3.0M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.4.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.4.bim'
+Fri Dec  8 10:11:40 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 4192 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 0s
+Fri Dec  8 10:11:40 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.4.gds' (3.1M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.4.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.4.gds.tmp' (3.1M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.5.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.5.bed'
+        SNP-major mode (Sample X SNP), 52.8M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.5.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.5.bim'
+Fri Dec  8 10:11:42 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 72724 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 2s
+Fri Dec  8 10:11:44 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.5.gds' (53.4M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.5.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.5.gds.tmp' (53.4M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.6.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.6.bed'
+        SNP-major mode (Sample X SNP), 52.3M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.6.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.6.bim'
+Fri Dec  8 10:11:46 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 72018 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 2s
+Fri Dec  8 10:11:48 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.6.gds' (52.9M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.6.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.6.gds.tmp' (52.9M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.7.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.7.bed'
+        SNP-major mode (Sample X SNP), 54.6M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.7.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.7.bim'
+Fri Dec  8 10:11:50 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 75181 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 2s
+Fri Dec  8 10:11:52 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.7.gds' (55.2M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.7.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.7.gds.tmp' (55.2M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.8.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.8.bed'
+        SNP-major mode (Sample X SNP), 50.0M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.8.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.8.bim'
+Fri Dec  8 10:11:54 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 68767 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 2s
+Fri Dec  8 10:11:56 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.8.gds' (50.5M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.8.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.8.gds.tmp' (50.5M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.9.bim"
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.9.bed'
+        SNP-major mode (Sample X SNP), 52.3M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.9.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.9.bim'
+Fri Dec  8 10:11:58 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 72033 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 2s
+Fri Dec  8 10:12:01 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.9.gds' (52.9M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.9.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.9.gds.tmp' (52.9M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.10.bim"
+Chromosome 9 has 9 subgroups.

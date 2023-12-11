@@ -1,0 +1,2 @@
+effect_allele	reference_allele	effect_weight	chr_name	chr_pos	pgs
+T	C	-1.5	12	84615658	PGSShieh2023

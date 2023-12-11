@@ -30,7 +30,7 @@ out_file<-"/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AM
 
 max_subgroups_per_chromosome <- 10
 
-for (i in 1:22) {
+for (i in c(9)) {
   num_subgroups <- 0  # Initialize the number of subgroups found for this chromosome
   
   # Test for how many files there are

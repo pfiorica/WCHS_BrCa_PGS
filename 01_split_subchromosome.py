@@ -15,8 +15,12 @@ desired_subgroups_per_chromosome = 10
 # Create the output directory if it doesn't exist
 os.makedirs(output_directory, exist_ok=True)
 
+desired_chromosome = 9
+
 # Process each chromosome directory
 for chromosome in range(1, 23):
+    #if chromosome != desired_chromosome:
+    #    continue
     chromosome_directory = os.path.join(input_directory, f"wchs_3048_chr{chromosome}")
     output_chromosome_directory = os.path.join(output_directory, f"wchs_3048_chr{chromosome}")
     os.makedirs(output_chromosome_directory, exist_ok=True)

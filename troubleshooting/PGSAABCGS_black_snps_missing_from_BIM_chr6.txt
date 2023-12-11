@@ -1,0 +1,3 @@
+effect_allele	reference_allele	effect_weight	chr_name	chr_pos	pgs
+CTG	C	0.196	6	26610485	PGSAABCGS_black
+AT	A	0.1838	6	167971429	PGSAABCGS_black

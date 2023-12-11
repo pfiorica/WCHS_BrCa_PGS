@@ -7,10 +7,10 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=16000
 ##SBATCH --requeue
-#SBATCH --output=pgs_job_4_gao_brca_neg.out
-#SBATCH --error=pgs_job_4_gao_brca_neg.err
-###SBATCH --array=1,2,4,5,6
+#SBATCH --output=pgs_job_%A_.out
+#SBATCH --error=pgs_job_%A_.err
+#SBATCH --array=1-6
 
 module load gcc openmpi r-bundle-bioconductor
 
-Rscript UKB.PGS_PNF1.R 4
+Rscript UKB.PGS_PNF1.R $SLURM_ARRAY_TASK_ID

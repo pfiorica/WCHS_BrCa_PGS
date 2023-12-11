@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#!/bin/bash -l
 #SBATCH --reservation=ubhpc-future
 #SBATCH --partition=general-compute --qos=general-compute
 #SBATCH --time=19:0:00

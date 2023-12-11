@@ -1,0 +1,178 @@
+---
+title: "Troubleshooting WCHS PGS"
+author: "Peter Fiorica"
+date: "2023-12-07"
+output: html_document
+---
+
+```{r, echo = FALSE}
+#suppressPackageStartupMessages(tidyverse)
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(ggplot2))
+"%&%"=function(a,b) paste(a,b,sep="")
+```
+
+# Background
+I applied 6 PGS models to WCHS genotypes. Notes on how I did this are available in the `WCHS_PGS_Notes.Rmd` file.
+
+An issue here is that they were not well-covered. See the summary statistics below that are available at `/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/PGS.matching.summary_WCHS_BrCa.csv`
+
+| **Trait**         | **N.of.Variants** | **N.of.Ambg** | **% Ambg** | **Total.Matched** | **% Total.Matched** | **Flipped.Mathced** | **% Flipped.Matched** |
+|-------------------|-------------------|---------------|------------|-------------------|---------------------|---------------------|-----------------------|
+| Breast_Cancer_313 | 313               | 0             | 0          | 224               | 71.57               | 164                 | 52.4                  |
+| AABCGS_black      | 89                | 0             | 0          | 84                | 94.38               | 35                  | 39.33                 |
+| Gao2022_BrCa      | 56943             | 0             | 0          | 44099             | 77.44               | 39913               | 70.09                 |
+| Gao2022_ERNEG     | 28405             | 0             | 0          | 21982             | 77.39               | 19847               | 69.87                 |
+| Gao2022_ERPOS     | 29309             | 0             | 0          | 22685             | 77.4                | 20553               | 70.13                 |
+| Shieh2023         | 76                | 0             | 0          | 64                | 84.21               | 34                  | 44.74                 |
+
+# Potential pitfalls
+
+* My conversion from PLINK to GDS
+* Unlifted SNPS in PGS files
+
+## Conversion from PLINK to GDS
+This conversion was perfromed in `00_split_plink.sh`, `01_split_subchromosome.py`, `02_call_plink2gds.sh`
+
+I need to perform some QC on these SNPs to confirm that they were all converted properly.
+
+```{r, eval = FALSE}
+for (i in 1:22){
+  gdsDir = "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr" %&% i 
+  files = list.files(gdsDir, pattern = paste("chr", i, ".*.gds$", sep = ""), full.names = T)
+  bedDir = "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr" %&% i
+  bed_files = list.files(bedDir, pattern = paste("chr", i, ".*.bim$", sep = ""), full.names = T)
+  print("There are " %&% length(files) %&%" gds subfiles for chromosome " %&% i %&% ".")
+  print("There are " %&% length(bed_files) %&% " bim subfiles for chromosome " %&% i %&%".")
+  if(length(files) == length(bed_files)){}else{
+    print("There is a differing number of bim and gds files for chromosome " %&% i)
+  } #for (j in length(files)){
+    #input_file <- input.dir %&% i %&%"."%&% j %&%".gds"  
+  #}
+}
+```
+
+I ran this code and found that there is a differing number of files for chromosome 9.
+
+When I look at log file `R-02_plink2gds.13823981.out`, it shows the following.
+
+```
+Start file conversion from PLINK BED to SNP GDS ...
+    BED file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.3.bed'
+        SNP-major mode (Sample X SNP), 45.7M
+    FAM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.3.fam'
+    BIM file: '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.3.bim'
+Thu Oct 26 16:04:26 2023     (store sample id, snp id, position, and chromosome)
+    start writing: 3048 samples, 62871 SNPs ...
+[..................................................]  0%, ETC: ---        [==================================================] 100%, completed, 1s
+Thu Oct 26 16:04:27 2023 	Done.
+Optimize the access efficiency ...
+Clean up the fragments of GDS file:
+    open the file '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.3.gds' (46.1M)
+    # of fragments: 25
+    save to '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.3.gds.tmp'
+    rename '/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.3.gds.tmp' (46.1M, reduced: 84B)
+    # of fragments: 18
+[1] "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.4.bim"
+Chromosome 9 has 3 subgroups.
+```
+
+
+When I look at the chromosome 9 BED subfiles:
+
+```
+72033 chr9.10.bim
+  105137 chr9.1.bim
+   87989 chr9.2.bim
+   62871 chr9.3.bim
+    4192 chr9.5.bim
+   72724 chr9.6.bim
+   72018 chr9.7.bim
+   75181 chr9.8.bim
+   68767 chr9.9.bim
+  620912 total
+```
+
+There is not a chromosome 9.4 file. So we will look at the previous script that split those files: `01_split_subchromosome.py`. There is not a full log file for this script, but there is a specific plink log file:
+
+```
+PLINK v1.90b6.21 64-bit (19 Oct 2020)
+Options in effect:
+  --bfile /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/wchs_3048_chr9
+  --chr 9
+  --from-bp 41516405
+  --make-bed
+  --out /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/subfiles/wchs_3048_chr9/chr9.4
+  --to-bp 55338351
+
+Hostname: cpn-h22-09.core.ccr.buffalo.edu
+Working directory: /projects/rpci/wchs/pnfioric/pgs_wchs/pgs_brca
+Start time: Thu Oct 26 14:57:33 2023
+
+Random number seed: 1698346653
+515311 MB RAM detected; reserving 257655 MB for main workspace.
+Error: All variants excluded.
+```
+To explore this:
+
+```{r, eval = FALSE}
+chr9<-fread("/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/wchs_3048_chr9.bim", header = FALSE)
+table(41516405 < chr9$V4 & chr9$V4 < 55338351)
+```
+
+```
+FALSE 
+620911
+```
+
+I addressed the chromosome 9 issue and re-calculated the PGS. The new data appears as follows:
+
+| **Trait**         | **N.of.Variants** | **N.of.Ambg** | **% Ambg** | **Total.Matched** | **% Total.Matched** | **Flipped.Mathced** | **% Flipped.Matched** |
+|-------------------|-------------------|---------------|------------|-------------------|---------------------|---------------------|-----------------------|
+| Breast_Cancer_313 | 313               | 0             | 0          | 234               | 74.76               | 172                 | 54.95                 |
+| AABCGS_black      | 89                | 0             | 0          | 87                | 97.75               | 37                  | 41.57                 |
+| Gao2022_BrCa      | 56943             | 0             | 0          | 45386             | 79.7                | 41083               | 72.15                 |
+| Gao2022_ERNEG     | 28405             | 0             | 0          | 22608             | 79.59               | 20415               | 71.87                 |
+| Gao2022_ERPOS     | 29309             | 0             | 0          | 23370             | 79.74               | 21177               | 72.25                 |
+| Shieh2023         | 76                | 0             | 0          | 66                | 86.84               | 34                  | 44.74                 |
+
+
+Now I have to figure out where the rest of these SNPs went.
+
+To do this, I prepared the script `check_pgs_overlap_with_bim.R`. This script:
+
+  1. Reads in the PGS files
+  2. Iterates over each chromosome to read in each .bim and .gds file. 
+  3. Test if the number of rows in the .gds and .bim files are the same. 
+  4. Check the number of PGS SNPs that are missing in the .gds and .bim files.
+  5. Writes a list of SNPs in the PGS models that are missing from the genotypes.
+  
+## Unlifted SNPS in PGS files
+I am not sure how to systematically analyze the SNPs to assess if they were lifted over properly beyond the liftover err document that is provided in the liftover step. For example, Breast_Cancer_313 (PGS000004) had all of it SNPs lifted over, but it also has the lowest coverage. On the other hand, Gao2022_BrCa failed it's liftover on 1441 records; however, only 6 of these SNPs are located on chromosomes besides chromosome 23 (X).
+
+```{r}
+PGS_list<-c("PGS000004", "PGSAABCGS_black", "PGSGao2022_BrCa", "PGSGao2022_ERNEG", "PGSGao2022_ERPOS", "PGSShieh2023")
+
+total_pgs<-data.table()
+for (PGS in PGS_list){
+  a<-fread("C:/Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/WCHS_PGS_Analysis/BrCa_PRS/" %&% PGS %&% ".txt", header = T)
+  a$pgs<-PGS
+  total_pgs<-bind_rows(total_pgs,a)
+}
+
+table(total_pgs$chr_name=="23", total_pgs$pgs)
+
+chr23<-total_pgs %>% filter(chr_name=="23")
+
+
+ggplot(chr23, aes(x=effect_weight, fill = pgs))+
+    geom_histogram(bins = 45, color = "black") + 
+    facet_wrap(~pgs, scales = 'free_x') + theme_bw() + guides(fill="none")
+```
+
+When we account for this we see the % Matched in chromosomes 1-22 are PGSGao2022_BrCa (`r 100*45386/55508`), PGSGao2022_ERNEG (`r 100*22608/ 27679`), PGSGao2022_ERPOS (`r 100*23370/28588`).
+
+
+# Conclusion
+I think it is inappropriate to remove the chromosome 23 SNPs since they were used to build the model, and chromosome X could potentially have a role in breast cancer. The second table above is likely the most appropriate coverage to use.

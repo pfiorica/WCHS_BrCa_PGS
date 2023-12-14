@@ -261,7 +261,7 @@ fwrite(AABCGS_black_weights, pgs.dir %&% "PGSAABCGS_black.txt", col.names = T, s
 
 # Cleaning Genotype Files
 
-Haiyang's code uses genotype files that are in GDS format. I have never used this format before, but it looks like plink files can be converted to it with `snpgdsBED2GDS()` from the `SNPRelate` package in R. First, I am going to try this out with chromosome 22 to see if it will work. To do this, I am going to launch an interaction session on CCR and go forward with the following steps:
+Haiyang's code uses genotype files that are in GDS format. I have never used this format before, but it looks like plink files can be converted to it with `snpgdsBED2GDS()` from the `SNPRelate` package in R. First, I am going to try this out with chromosome 22 to see if it will work. To do this, I am going to launch an interactive session on CCR and go forward with the following steps:
 
   1. Pull the genotypes from chr 22 including only those 3048 individuals with matched IDs from WCHS.
   2. Convert chr 22 to GDS
@@ -307,5 +307,18 @@ data_long <- data_long[grepl("^PGS_", PGS)]
 ggplot(data_long, aes(value, fill= PGS)) + 
     geom_histogram(bins = 25, color = "black") + 
     facet_wrap(~PGS, scales = 'free_x') + theme_bw() + guides(fill="none")
+
+```
+
+## Adding WCHS IDs to Genotype labels on PGS
+```{r}
+ID_key <- read_xlsx("C://Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/Pathways_GWAS_TILs/AABCGS_WCHS_IDs.xlsx")
+
+PGS_total<-fread(pgs.dir %&% "WCHS_BrCa_6_PGS.xlsx.csv", header = T) %>%
+  mutate(Abridged_Genotype_ID=sub("_.*$", "", samples))
+
+PGS_matched<-left_join(PGS_total,ID_key,  by = c("Abridged_Genotype_ID"="AABCGS_ID")) %>%
+  select(Genotype_ID=samples, WCHS_ID, AABC_ID, Abridged_Genotype_ID_AABCGS_ID= Abridged_Genotype_ID, PGS_Breast_Cancer_313, PGS_AABCGS_black,    PGS_Gao2022_BrCa, PGS_Gao2022_ERNEG, PGS_Gao2022_ERPOS, PGS_Shieh2023)
+fwrite(PGS_matched, pgs.dir %&% "WCHS_BrCa_6_PGS_with_WCHS_IDs.csv", col.names = T, row.names = F, sep= ",", quote = F)
 
 ```

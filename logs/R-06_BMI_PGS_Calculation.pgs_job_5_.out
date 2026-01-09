@@ -1,0 +1,51 @@
+[1] "p = 5"
+[1] "class of p is numeric"
+        rsID chr_name chr_position effect_allele reference_allele effect_weight
+1  rs9940128       16     53800754             A                G    0.08658763
+2  rs2168711       18     57848531             C                T    0.05963194
+3  rs6751994        2       635866             G                A    0.10026071
+4   rs543874        1    177889480             G                A    0.08529452
+5 rs10182181        2     25150296             G                A    0.04555804
+6  rs1501672        5     87963761             G                A    0.03178492
+  hm_source    hm_rsID hm_chr    hm_pos hm_inferOtherAllele
+1   ENSEMBL  rs9940128     16  53766842                  NA
+2   ENSEMBL  rs2168711     18  60181298                  NA
+3   ENSEMBL  rs6751994      2    635866                  NA
+4   ENSEMBL   rs543874      1 177920345                  NA
+5   ENSEMBL rs10182181      2  24927427                  NA
+6   ENSEMBL  rs1501672      5  88667943                  NA
+pop main
+processing chr 1
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr1/chr1.6.gds
+processing chr 2
+processing chr 3
+processing chr 4
+processing chr 5
+processing chr 6
+processing chr 7
+processing chr 8
+processing chr 9
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr9/chr9.4.gds
+processing chr 10
+processing chr 11
+processing chr 12
+processing chr 13
+processing chr 14
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr14/chr14.9.gds
+processing chr 15
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr15/chr15.9.gds
+processing chr 16
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr16/chr16.4.gds
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr16/chr16.5.gds
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr16/chr16.8.gds
+processing chr 17
+processing chr 18
+processing chr 19
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr19/chr19.7.gds
+processing chr 20
+processing chr 21
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr21/chr21.1.gds
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr21/chr21.8.gds
+processing chr 22
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr22/chr22.1.gds
+No variant match in /projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/main/wchs_chr22/chr22.2.gds

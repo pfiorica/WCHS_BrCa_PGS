@@ -1,0 +1,93 @@
+---
+title: "BMI_WCHS_PGS_Notes"
+author: "Peter Fiorica"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Introduction
+
+This document serves as the documentation for calculating polygenic scores for individuals in WCHS. Previously, I have done this for a handful of breast cancer PGS. The process for calculating those was documented in `WCHS_PGS_Notes.Rmd`. Much of that document describes the genotypic QC and matching for calculating the PGS. Since that gnotypic QC has already been performed, I will be focusing on the calculation, merging, and PGS QC for those individuals.
+
+>Here they are:  PGS003844 -PGS003848, so there are 5 of them.  
+ Can you please calculate these using WCHS data and send them to Nur when ready and cc me on it?
+ 
+# Downloading the PGS
+
+PGS003844-PGS003848
+
+It is important to note that our genotypes are in hg38, but the default format for the PGS catalog can be either hg37 or 38.
+
+```
+for i in {3844..3848}; do
+  pgs=$(printf "PGS%06d" "$i")
+  wget https://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/${pgs}/ScoringFiles/Harmonized/${pgs}_hmPOS_GRCh38.txt.gz
+  mv ${pgs}_hmPOS_GRCh38.txt.gz ${pgs}.txt.gz
+  gunzip "${pgs}.txt.gz"
+done
+```
+
+# Calculating PGS
+
+From the original code, I edited `03_call_pgs_calc.sh` to `06_call_pgs_calc_bmi.sh` and `UKB.PGS_PNF1.R` to `UKB.PGS_PNF1_BMI.R`. For these, I made minor changes that involved specifying the PGS and using PGSC IDs instead of phenotype names to describe them going forward.
+
+The PGS are calculated in parallel by calling `06_call_pgs_calc_bmi.sh`
+
+# Merging PGS
+
+These PGS files are then merged with `07_merge_PNF_bmi.R` which is updated from `04_merge_PNF.R`.
+
+
+```
+salloc  --qos=general-compute --partition=general-compute  --job-name "MyJob" --nodes=1 --ntasks=1 --mem=16G --time=04:30:00
+
+module load gcc foss r-bundle-bioconductor
+
+Rscript 07_merge_PNF_bmi.R
+
+```
+
+# QC on PGS files
+
+```
+Rscript 08_merge.valid.nvar_bmi_PNF.R
+```
+
+## Visualizing PGS
+```{r}
+PGS_list <- paste0("PGS00", c(3844:3848))
+pgs_scores <- fread("/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/WCHS_BrCa_BMI_5_PGS.csv", header = T)
+colnames(pgs_scores) <- gsub("PGS_", "", colnames(pgs_scores))
+
+pgs_scores_longer <- pgs_scores %>%
+  pivot_longer(
+    cols = starts_with("PGS"),
+    names_to = "PGS_ID",
+    values_to = "score"
+  ) %>% as.data.table
+
+ggplot(pgs_scores_longer, aes(x=score, fill = PGS_ID))+
+  geom_histogram(color = "black")+
+  facet_wrap(~PGS_ID, scales="free_x")+
+  theme_bw()
+```
+
+## Visualizing Coverage
+```{r}
+pgs_coverage <- fread("/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/PGS.matching.summary_WCHS_BrCa_BMI_PGS.csv")
+head(pgs_coverage)
+```
+
+
+
+## Adding WCHS IDs to Genotype labels on PGS
+```{r}
+ID_key <- read_xlsx("C://Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/Pathways_GWAS_TILs/AABCGS_WCHS_IDs.xlsx")
+
+PGS_total<-fread(pgs.dir %&% "WCHS_BrCa_6_PGS.xlsx.csv", header = T) %>%
+  mutate(Abridged_Genotype_ID=sub("_.*$", "", samples))
+
+PGS_matched<-left_join(PGS_total,ID_key,  by = c("Abridged_Genotype_ID"="AABCGS_ID")) %>%
+  select(Genotype_ID=samples, WCHS_ID, AABC_ID, Abridged_Genotype_ID_AABCGS_ID= Abridged_Genotype_ID, PGS_Breast_Cancer_313, PGS_AABCGS_black,    PGS_Gao2022_BrCa, PGS_Gao2022_ERNEG, PGS_Gao2022_ERPOS, PGS_Shieh2023)
+fwrite(PGS_matched, pgs.dir %&% "WCHS_BrCa_6_PGS_with_WCHS_IDs.csv", col.names = T, row.names = F, sep= ",", quote = F)
+```

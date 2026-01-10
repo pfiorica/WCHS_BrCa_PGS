@@ -13,12 +13,6 @@ The following objects are masked from ‘package:base’:
 
     intersect, setdiff, setequal, union
 
-Warning message:
-In dir.create(paste("./../../", PGS.scoreID[p], sep = "")) :
-  './../../PGS003847' already exists
-Warning message:
-In dir.create(paste("./../../", PGS.scoreID[p], "/TotalScores",  :
-  './../../PGS003847/TotalScores' already exists
 Loading required package: Biobase
 Loading required package: BiocGenerics
 
@@ -47,6 +41,3 @@ Welcome to Bioconductor
     'browseVignettes()'. To cite Bioconductor, see
     'citation("Biobase")', and for packages 'citation("pkgname")'.
 
-Warning message:
-In dir.create(paste("./../../", PGS.scoreID[p], "/", pop, sep = "")) :
-  './../../PGS003847/main' already exists

@@ -5,6 +5,13 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+```{r}
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(tidyverse))
+library(readxl)
+"%&%"=function(a,b) paste(a,b,sep="")
+```
+
 # Introduction
 
 This document serves as the documentation for calculating polygenic scores for individuals in WCHS. Previously, I have done this for a handful of breast cancer PGS. The process for calculating those was documented in `WCHS_PGS_Notes.Rmd`. Much of that document describes the genotypic QC and matching for calculating the PGS. Since that gnotypic QC has already been performed, I will be focusing on the calculation, merging, and PGS QC for those individuals.
@@ -25,6 +32,24 @@ for i in {3844..3848}; do
   mv ${pgs}_hmPOS_GRCh38.txt.gz ${pgs}.txt.gz
   gunzip "${pgs}.txt.gz"
 done
+```
+
+## Harmonizing PGS
+
+We need all of the weights to be harmonized to hg38, so they match the genotype build.
+```{r}
+weight_dir <- "/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/pgs_weights/hg37_bmi_weights/"
+file_list <- list.files(weight_dir)
+for (i in file_list){
+  print(i)
+  a <- fread(weight_dir %&% i, header = T) %>%
+    mutate(rsID= hm_rsID,
+            chr_name=hm_chr,
+           chr_position=hm_pos) %>% 
+    select(-starts_with("hm_"))
+  fwrite(a, weight_dir %&% "../bmi_weights/" %&% i, col.names = T, sep = "\t", quote = FALSE, row.names = FALSE)
+}
+
 ```
 
 # Calculating PGS
@@ -78,16 +103,145 @@ pgs_coverage <- fread("/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/PGS.m
 head(pgs_coverage)
 ```
 
+The coverage of the variants above is far from ideal.  The original manuscript reads:  "SNPs with $MAF>.0.01$ in at least one population were kept in the analyses." That means that some of these variants could be somewhat rare in a given population ($MAF<0.05$) and kept in the analysis but near non-existent in another population. These likely would have been filtered out of our analysis with minor allele frequency filtering.
+
+## Example Case: PGS003844
+Let's take a look at how many SNPs match by position and investigate those which do not match. I selected the first PGS because it has the fewest SNPs and may serve as a proof of concept for how this may work.
+```{r}
+# Read in list of genotyped SNPs
+bim_full <-fread("/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/wchs_geno002_full.bim")
+pgs <- fread(weight_dir %&% "../bmi_weights/PGS003844.txt", header = T)
+
+# Define by position and chromosome
+bim_full$cpos <- paste0(bim_full$V1, ":", bim_full$V4)
+pgs$cpos <- paste0(pgs$chr_name, ":", pgs$chr_position)
+
+# Filter to identify missing SNPs
+table(pgs$cpos %in% bim_full$cpos)
+pgs_miss <- pgs %>% filter(!cpos %in% bim_full$cpos)
+head(pgs_miss)
+```
+
+Above we can see a list of SNPs that are not found within the genotypes. If we look up some of these SNPs, we can find a situation that is surprising since many of these SNPs are somewhat common.
+
+# Check position coverage of variants
+```{r}
+weight_dir <- "/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/pgs_weights/bmi_weights/"
+file_list <- list.files(weight_dir,pattern =  "(*.).txt.gz")
+pgs_match <- data.table()
+
+strand_flip <- function(a) {
+  chartr("ACGT", "TGCA", a)
+}
+
+
+bim_dt<-bim_full
+setnames(bim_dt,
+         c("V1","V2","V3","V4","V5","V6"),
+         c("CHR","rsID_bim","CM","POS","A1","A2"))
+
+bim_dt[, cpos := paste0(CHR, ":", POS)]
+
+bim_dt[, `:=`(
+  A1 = toupper(A1),
+  A2 = toupper(A2)
+)]
+pgs_match <- data.table()
+for (i in file_list) {
+  message("Processing ", i)
+  pgs <- fread(file.path(weight_dir, i))
+  pgs[, cpos := paste0(chr_name, ":", chr_position)]
+  pgs[, `:=`(
+    ea = toupper(effect_allele),
+    oa = toupper(other_allele)
+  )]
+
+  # Merge by position (primary key)
+  m <- merge(
+    pgs,
+    bim_dt,
+    by = "cpos",
+    suffixes = c("_pgs", "_bim")
+  )
+  if (nrow(m) == 0) {
+    pgs_match <- rbind(
+      pgs_match,
+      data.table(
+        PGS = i,
+        N_SNP = nrow(pgs),
+        N_pos_match = 0,
+        N_allele_match = 0,
+        N_strand_match = 0,
+        Perc_usable = 0
+      )
+    )
+    next
+  }
+  ## Direct allele match (any order)
+  m[, allele_match :=
+      (ea == A1 & oa == A2) |
+      (ea == A2 & oa == A1)
+  ]
+
+  ## Strand-flipped alleles
+  m[, `:=`(
+    ea_flip = strand_flip(ea),
+    oa_flip = strand_flip(oa)
+  )]
+
+  m[, strand_match :=
+      (ea_flip == A1 & oa_flip == A2) |
+      (ea_flip == A2 & oa_flip == A1)
+  ]
+
+  ## Ambiguous SNPs (cannot strand flip safely)
+  m[, ambiguous :=
+      (ea %in% c("A","T") & oa %in% c("A","T")) |
+      (ea %in% c("C","G") & oa %in% c("C","G"))
+  ]
+
+  ## Valid usable variants
+  m[, usable := allele_match | (strand_match & !ambiguous)]
+
+  ## Align effect weights
+  m[, effect_weight_aligned :=
+      fifelse(
+        allele_match,
+        effect_weight,
+        fifelse(strand_match & !ambiguous, -effect_weight, NA_real_)
+      )
+  ]
+
+  ## Summaries
+  pgs_match <- rbind(
+    pgs_match,
+    data.table(
+      PGS = i,
+      N_SNP = nrow(pgs),
+      N_pos_match = nrow(m),
+      N_allele_match = sum(m$allele_match),
+      N_strand_match = sum(m$strand_match & !m$ambiguous),
+      N_ambiguous = sum(m$ambiguous),
+      Perc_usable = 100 * sum(m$usable) / nrow(pgs)
+    )
+  )
+}
+
+```
+
+
+```{r}
 
 
 ## Adding WCHS IDs to Genotype labels on PGS
 ```{r}
-ID_key <- read_xlsx("C://Users/pe42518/OneDrive - University at Buffalo/Documents/Ambrosone_Yao/Pathways_GWAS_TILs/AABCGS_WCHS_IDs.xlsx")
+pgs.dir <- "/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/"
+ID_key <- read_xlsx("/projects/rpci/wchs/pnfioric/pgs_wchs/AABCGS_WCHS_IDs.xlsx")
 
-PGS_total<-fread(pgs.dir %&% "WCHS_BrCa_6_PGS.xlsx.csv", header = T) %>%
+PGS_total<-fread(pgs.dir %&% "WCHS_BrCa_BMI_5_PGS.csv", header = T) %>%
   mutate(Abridged_Genotype_ID=sub("_.*$", "", samples))
 
 PGS_matched<-left_join(PGS_total,ID_key,  by = c("Abridged_Genotype_ID"="AABCGS_ID")) %>%
-  select(Genotype_ID=samples, WCHS_ID, AABC_ID, Abridged_Genotype_ID_AABCGS_ID= Abridged_Genotype_ID, PGS_Breast_Cancer_313, PGS_AABCGS_black,    PGS_Gao2022_BrCa, PGS_Gao2022_ERNEG, PGS_Gao2022_ERPOS, PGS_Shieh2023)
+  select(Genotype_ID=samples, WCHS_ID, AABC_ID, Abridged_Genotype_ID_AABCGS_ID= Abridged_Genotype_ID, starts_with("PGS"))
 fwrite(PGS_matched, pgs.dir %&% "WCHS_BrCa_6_PGS_with_WCHS_IDs.csv", col.names = T, row.names = F, sep= ",", quote = F)
 ```

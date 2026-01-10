@@ -26,14 +26,14 @@ dir.create(paste("./../../", PGS.scoreID[p], "/TotalScores", sep = ''))
 # the target GWAS data with weights
 weightFile = PGS.files[p]
 weight = read.table(weightFile, header = T, sep = "", as.is = T, na.strings = c(" ", "", "NA", NA), fill = T)
-  if ("other_allele" %in% names(weight)) {names(weight)[names(weight) == "other_allele"] <- "reference_allele"}
-  head(weight)
-  # in this weight file the effect allele and reference allele are the same with what we have
-  # weight$effect_allele_rv<-weight$reference_allele
-  # weight$reference_allele_rv<-weight$effect_allele
-  weight$name = paste(weight$chr_name, weight$chr_pos, weight$effect_allele, weight$reference_allele, sep=":")
-  # The last row is NA
-  # weight=weight[1:143,]
+if ("other_allele" %in% names(weight)) {names(weight)[names(weight) == "other_allele"] <- "reference_allele"}
+head(weight)
+# in this weight file the effect allele and reference allele are the same with what we have
+# weight$effect_allele_rv<-weight$reference_allele
+# weight$reference_allele_rv<-weight$effect_allele
+weight$name = paste(weight$chr_name, weight$chr_pos, weight$effect_allele, weight$reference_allele, sep=":")
+# The last row is NA
+# weight=weight[1:143,]
 
 library(GWASTools)
 # library(survival)

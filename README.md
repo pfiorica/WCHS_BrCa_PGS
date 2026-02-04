@@ -7,7 +7,7 @@ The [troubleshooting](https://github.com/pfiorica/WCHS_BrCa_PGS/tree/main/troubl
 
 ## BMI PGS
 
-In January 2026, 5 PGS for BMI (PGS003844-PGS003848) were calculated from the WCHS genotypes. A few additional scripts were made to perform these calculations. The documentation of this process can be found in `BMI_PGS_Calculation_Notes.Rmd`. It follows the same pipeline as above.
+In January 2026, 5 PGS for BMI (PGS003844-PGS003848) were calculated from the WCHS genotypes. A few additional scripts were made to perform these calculations. The documentation of this process can be found in `BMI_PGS_Calculation_Notes.Rmd`. It follows the same pipeline as above with a slight change to how the `% Matched` was calculated when intersecting the PGS variants and the genotype variants..
 
 ## Contact
 For further questions about these PGS and their calculation, please contact me, Peter Fiorica, at peter.fiorica@roswellpark.org.

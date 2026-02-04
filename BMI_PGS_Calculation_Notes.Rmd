@@ -10,11 +10,12 @@ suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(tidyverse))
 library(readxl)
 "%&%"=function(a,b) paste(a,b,sep="")
+weight_dir <- "/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/pgs_weights/hg37_bmi_weights/"
 ```
 
 # Introduction
 
-This document serves as the documentation for calculating polygenic scores for individuals in WCHS. Previously, I have done this for a handful of breast cancer PGS. The process for calculating those was documented in `WCHS_PGS_Notes.Rmd`. Much of that document describes the genotypic QC and matching for calculating the PGS. Since that gnotypic QC has already been performed, I will be focusing on the calculation, merging, and PGS QC for those individuals.
+This document serves as the documentation for calculating polygenic scores for individuals in WCHS. Previously, I have done this for a handful of breast cancer PGS. The process for calculating those was documented in `WCHS_PGS_Notes.Rmd`. Much of that document describes the genotypic QC and matching for calculating the PGS. Since that genotypic QC has already been performed, I will be focusing on the calculation, merging, and PGS QC for those individuals.
 
 >Here they are:  PGS003844 -PGS003848, so there are 5 of them.  
  Can you please calculate these using WCHS data and send them to Nur when ready and cc me on it?
@@ -37,8 +38,8 @@ done
 ## Harmonizing PGS
 
 We need all of the weights to be harmonized to hg38, so they match the genotype build.
-```{r}
-weight_dir <- "/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/pgs_weights/hg37_bmi_weights/"
+```{r, eval = FALSE}
+
 file_list <- list.files(weight_dir)
 for (i in file_list){
   print(i)
@@ -95,6 +96,7 @@ ggplot(pgs_scores_longer, aes(x=score, fill = PGS_ID))+
   geom_histogram(color = "black")+
   facet_wrap(~PGS_ID, scales="free_x")+
   theme_bw()
+
 ```
 
 ## Visualizing Coverage
@@ -103,7 +105,11 @@ pgs_coverage <- fread("/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/PGS.m
 head(pgs_coverage)
 ```
 
-The coverage of the variants above is far from ideal.  The original manuscript reads:  "SNPs with $MAF>.0.01$ in at least one population were kept in the analyses." That means that some of these variants could be somewhat rare in a given population ($MAF<0.05$) and kept in the analysis but near non-existent in another population. These likely would have been filtered out of our analysis with minor allele frequency filtering.
+*Initial Point* (10 January 2026): The coverage of the variants above is far from ideal.  The original manuscript reads:  "SNPs with $MAF>.0.01$ in at least one population were kept in the analyses." That means that some of these variants could be somewhat rare in a given population ($MAF<0.05$) and kept in the analysis but near non-existent in another population. These likely would have been filtered out of our analysis with minor allele frequency filtering.
+
+*Updated Point* (4 February 2026): The coverage issues above was resolved by editing the `UKB.PGS_PNF1_BMI.R` and `08_merge.valid.nvar_bmi_PNF.R` scripts. The issue was that variants with zero or NA effect sizes were being removed from the PGS calculation to decrease computing cost. However, after the fact, these variants were not removed from the `% Matched` calculation.
+
+# Troubleshooting
 
 ## Example Case: PGS003844
 Let's take a look at how many SNPs match by position and investigate those which do not match. I selected the first PGS because it has the fewest SNPs and may serve as a proof of concept for how this may work.
@@ -124,10 +130,12 @@ head(pgs_miss)
 
 Above we can see a list of SNPs that are not found within the genotypes. If we look up some of these SNPs, we can find a situation that is surprising since many of these SNPs are somewhat common.
 
+
+
 # Check position coverage of variants
 ```{r}
 weight_dir <- "/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/pgs_weights/bmi_weights/"
-file_list <- list.files(weight_dir,pattern =  "(*.).txt.gz")
+file_list <- list.files(weight_dir,pattern =  "(*.).txt")
 pgs_match <- data.table()
 
 strand_flip <- function(a) {
@@ -226,12 +234,28 @@ for (i in file_list) {
     )
   )
 }
-
+head(pgs_match)
 ```
 
+From the information above, these PGS have much better coverage than those reported by Haiyang's code. Because of this, we will need to make some serious updates to his code...
 
-```{r}
+## Identifying the problem
 
+For some reason we are still running into very low calls on the PGS match rate. PGS003844, PGS003846, and PGS003847 have the correct match rates as shown above. 	
+PGS003848 and PGS003845 have exceptionally low match rates.
+
+The reason for this may be that most of these variants have VERY low effect sizes. i.e. zero effect.
+
+For example, let's take a look at the PGS003845 downloaded from the PGS catalog for hg37.
+```
+rsID    chr_name        chr_position    effect_allele   other_allele    effect_weight   hm_source       hm_rsID hm_chr  hm_pos  hm_inferOtherAllele
+rs10000008      4       172776204       T       C       0.0     ENSEMBL rs10000008      4       171855053       
+rs10000011      4       138223055       T       C       0.0     ENSEMBL rs10000011      4       137301901       
+rs1000002       3       183635768       T       C       0.0     ENSEMBL rs1000002       3       183917980       
+rs1000003       3       98342907        G       A       0.0     ENSEMBL rs1000003       3       98624063        
+rs10000030      4       103374154       A       G       0.0     ENSEMBL rs10000030      4       102452997       
+rs1000007       2       237752054       C       T       -0.000165605867044904   ENSEMBL rs1000007       2       236843411    
+```
 
 ## Adding WCHS IDs to Genotype labels on PGS
 ```{r}
@@ -243,5 +267,7 @@ PGS_total<-fread(pgs.dir %&% "WCHS_BrCa_BMI_5_PGS.csv", header = T) %>%
 
 PGS_matched<-left_join(PGS_total,ID_key,  by = c("Abridged_Genotype_ID"="AABCGS_ID")) %>%
   select(Genotype_ID=samples, WCHS_ID, AABC_ID, Abridged_Genotype_ID_AABCGS_ID= Abridged_Genotype_ID, starts_with("PGS"))
-fwrite(PGS_matched, pgs.dir %&% "WCHS_BrCa_6_PGS_with_WCHS_IDs.csv", col.names = T, row.names = F, sep= ",", quote = F)
+fwrite(PGS_matched, pgs.dir %&% "WCHS_BrCa_BMI_5_PGS_with_WCHS_IDs.csv", col.names = T, row.names = F, sep= ",", quote = F)
 ```
+
+

@@ -12,4 +12,4 @@
 
 module load gcc openmpi r-bundle-bioconductor
 
-Rscript UKB.PGS_PNF1_BMI.R $SLURM_ARRAY_TASK_ID
+Rscript UKB.PGS_PNF1_BMI2.R $SLURM_ARRAY_TASK_ID

@@ -14,8 +14,8 @@ PGS.scoreID <- unlist(regmatches(PGS.files, gregexpr("(PGS.*?)(?=\\.txt)", PGS.f
 #PGS.scoreNM <- c("Breast_Cancer_313", "AABCGS_black", "Gao2022_BrCa", "Gao2022_ERNEG", "Gao2022_ERPOS", "Shieh2023")
 PGS.scoreNM <- PGS.scoreID 
   
-df_PGS.sm_Pathway <- as.data.frame(matrix(NA, ncol = 8, nrow = length(PGS.scoreNM)))
-names(df_PGS.sm_Pathway) <- c("Trait", "N.of.Variants", "N.of.Ambg", "% Ambg", "Total.Matched", 
+df_PGS.sm_Pathway <- as.data.frame(matrix(NA, ncol = 9, nrow = length(PGS.scoreNM)))
+names(df_PGS.sm_Pathway) <- c("Trait", "N.of.Variants", "N.of.non_zero_Variants", "N.of.Ambg", "% Ambg", "Total.Matched", 
                             "% Total.Matched", "Flipped.Mathced", "% Flipped.Matched")
 
 # df.sm_ls<-list()
@@ -35,6 +35,11 @@ for (i in 1:length(PGS.scoreID)) {
                          na.strings = c(" ", "", "NA", NA), fill = T)
     df_PGS.sm_Pathway$N.of.Variants[i] <- nrow(weight)
     
+    
+    # N of non-zero variants
+    weight1 <- weight %>% filter(!is.na(effect_weight) & effect_weight != 0)
+    df_PGS.sm_Pathway$N.of.non_zero_Variants[i] <- nrow(weight1)
+    
     # n of ambg and %
     if ("other_allele" %in% names(weight)) {names(weight)[names(weight) == "other_allele"] <- "reference_allele"}
     df_PGS.sm_Pathway$N.of.Ambg[i] <- sum(paste0(weight$effect_allele, ":", weight$reference_allele) %in% c("A:T", "T:A", "C:G", "G:C"))
@@ -50,7 +55,7 @@ for (i in 1:length(PGS.scoreID)) {
     # }
     nvar <- sum(do.call("rbind", nvar.list))
     df_PGS.sm_Pathway$Total.Matched[i] <- nvar
-    df_PGS.sm_Pathway$`% Total.Matched`[i] <- round(100*nvar/nrow(weight), 2)
+    df_PGS.sm_Pathway$`% Total.Matched`[i] <- round(100*nvar/nrow(weight1), 2)
     # flipped matched and %
     flip.files <- list.files()
     flip.files <- flip.files[grepl("unmatched", flip.files)]

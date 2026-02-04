@@ -26,7 +26,7 @@ for (i in 1:length(PGS.scoreID)) {
   
     score.files <- list.files()
     score.files <- score.files[!grepl("n", score.files)]
-    score.list <- lapply(score.files, function(x) {read.table(x, header = F, sep = "\t")})
+    score.list <- lapply(score.files, function(x) {read.table(x, header = F, sep = " ")})
     for (j in 1:length(score.list)) {
       names(score.list[[j]]) <- c("samples", substr(score.files[j], 1, nchar(score.files[j]) - 10))
     }

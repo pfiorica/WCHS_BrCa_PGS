@@ -1,160 +1,147 @@
 #!/usr/bin/env Rscript
-library(data.table)
-library(dplyr)
 
-"%&%"=function(a,b) paste(a,b,sep="")
+suppressPackageStartupMessages({
+  library(data.table)
+  library(GWASTools)
+})
 
-args = commandArgs(trailingOnly=TRUE)
+"%&%" <- function(a, b) paste0(a, b)
+
+## ---------------- args ----------------
+args <- commandArgs(trailingOnly = TRUE)
 p <- as.numeric(args[1])
-paste0("p = ", p)
-paste0("class of p is ",class(p))
 
-# dir_PGS <- "C:/Users/Haiyang/Box/RA/RoswellPark/2022/1010 CMD and CVD analysis in PWS/PGS/weights"
+## ---------------- directories ----------------
 dir_PGS <- "/projects/rpci/wchs/pnfioric/pgs_wchs/WCHS_BrCa_pgs/pgs_weights/bmi_weights"
-PGS.files = list.files(dir_PGS, full.names = T)
-# PGS.scoreID <- substr(PGS.files, start = 59, stop = 67)
+PGS.files <- list.files(dir_PGS, full.names = TRUE)
+PGS.scoreID <- sub("\\.txt$", "", basename(PGS.files))
+
 setwd(dir_PGS)
-PGS.scoreID <- unlist(regmatches(PGS.files, regexpr("PGS.*(?=\\.txt)", PGS.files, perl = TRUE)))
-#PGS.nms <- c("Breast_Cancer_313", "AABCGS_black", "Gao2022_BrCa", "Gao2022_ERNEG", "Gao2022_ERPOS", "Shieh2023")
-PGS.nms <- PGS.scoreID
 
-# Print the result
+dir.create(paste0("./../../", PGS.scoreID[p]), showWarnings = FALSE)
+dir.create(paste0("./../../", PGS.scoreID[p], "/TotalScores"), showWarnings = FALSE)
 
-dir.create(paste("./../../", PGS.scoreID[p], sep = ''))
-dir.create(paste("./../../", PGS.scoreID[p], "/TotalScores", sep = ''))
+## ---------------- load weights ----------------
+weight <- fread(PGS.files[p])
+setnames(weight, old = "other_allele", new = "reference_allele", skip_absent = TRUE)
 
-# the target GWAS data with weights
-weightFile = PGS.files[p]
-weight = read.table(weightFile, header = T, sep = "", as.is = T, na.strings = c(" ", "", "NA", NA), fill = T)
-if ("other_allele" %in% names(weight)) {names(weight)[names(weight) == "other_allele"] <- "reference_allele"}
-head(weight)
-# in this weight file the effect allele and reference allele are the same with what we have
-# weight$effect_allele_rv<-weight$reference_allele
-# weight$reference_allele_rv<-weight$effect_allele
-weight$name = paste(weight$chr_name, weight$chr_pos, weight$effect_allele, weight$reference_allele, sep=":")
-# The last row is NA
-# weight=weight[1:143,]
+weight[, `:=`(
+  ea = toupper(effect_allele),
+  oa = toupper(reference_allele),
+  cpos = paste0(chr_name, ":", chr_position)
+)]
+weight1 <- weight
+weight <- weight[!is.na(effect_weight) & effect_weight != 0]
 
-library(GWASTools)
-# library(survival)
-# library(cmprsk)
 
-# # chromosome number
-# chr = rep(1:22,4)[idx]
-# 
-# # Race population
-# pop = rep(c("AA", "EA4", "EU", "HIS"), each=22)[idx]
+removed_variants = nrow(weight1)- nrow(weight)
+print(removed_variants %&% " variants were removed because of a ZERO EFFECT SIZE")
+print("This corresponds to " %&% (100*removed_variants/ nrow(weight1)) %&% "% of variants!!")
 
-for (pop in c("main")) {
-  dir.create(paste("./../../", PGS.scoreID[p], "/", pop, sep = ''))
-  cat(paste0("pop ", pop), sep = "\n")
-  for (chr in (1:22)[1:22 %in% unique(weight$chr_name)]) {
-    cat(paste0("processing chr ", chr), sep = "\n")
-    
-    # output file for current chromosome and population
-    outfile = paste("./../../", PGS.scoreID[p], "/", pop, "/chr.", chr, "scores.txt", sep = '')
-    
-    # directory of the imputation data
-    gdsDir = "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/" %&% pop %&%"/wchs_chr" %&% chr 
-    
-    # scan all the file names with "chr "current chrnumber"-.dgs" files
-    files = list.files(gdsDir, pattern = paste("chr", chr, ".*.gds$", sep = ""), full.names = T)
-    #files = list.files(gdsDir, pattern = paste("wchs_chr", chr, ".gds", sep = ""), full.names = T)
-    # output files for number of variants and valid variants
-    outfile1 = paste(outfile, "nvar", sep = ".")
-    outfile2 = paste(outfile, "valid.nvar", sep = ".")
-    outfile3 = paste(outfile, "n.unmatched.alleles", sep = ".")
-    
-    scores = c()
-    nvar = 0
-    valid.nvar = 0
-    umchd.Alle = 0
-    # for each file of current population and chromosome
-    for (i in 1:length(files)) {
-      gdsfile = files[i]
-      #snpAnnotFile = sub(".gds", ".snp.RData", gdsfile) 
-      
-      gds <- GdsGenotypeReader(gdsfile)
-      # add phenotype information
-      samples = getVariable(gds, "sample.id") # or samples = getScanID(gds) 
-      #load(snpAnnotFile)
-      # Get the snps and alleles to match with the weights data
-      #anno = pData(snpAnnot)
-      anno <- data.table()
-      anno$chromosome <- getChromosome(gds)
-      anno$position <- getPosition(gds)
-      anno$alleleA <- getAlleleA(gds)
-      anno$alleleB <- getAlleleB(gds)
-      genoData <-  GenotypeData(gds)
-      # the imputation data, the large matrix to multiply with the weights
-      geno <- getGenotype(genoData, use.names = T)
-      close(gds)
-      
-      #variants = apply(anno[,c("chromosome", "position", "alleleA", "alleleB")], 1, function(x){paste(c(as.numeric(x[1:2]), sort(x[3:4])), collapse=":")})
-      variants1 = paste(anno$chromosome, anno$position, anno$alleleB, anno$alleleA, sep=":")
-      variants2 = paste(anno$chromosome, anno$position, anno$alleleA, anno$alleleB, sep=":")
-      ind1 = match(variants1, weight$name)
-      ind2= match(variants2, weight$name)
-      ind1[is.na(ind1)]<-ind2[is.na(ind1)]
-      ind <- ind1
-      nv = sum(!is.na(ind))
-      if (nv==0) {
-        cat(paste("No variant match in", gdsfile, sep=" ") , sep="\n")
-        next
-      }
-      if(nv!=0){
-        nvar = nvar + nv 
-        t = which(!is.na(ind))
-        anno = anno[t,]
-        geno = geno[t,]
-        weight1 = weight[ind[t],]
-        
-        valid = nrow(weight1[!is.na(weight1$effect_weight) & weight1$effect_weight != 0,])
-        valid.nvar = valid.nvar + valid 
-        
-        ind = which(anno$alleleB != weight1$effect_allele)
-        umchd.Alle = umchd.Alle + length(ind)
-        if(length(ind) == 0){
-          if(ncol(data.frame(geno)) > 1){
-            # scores is N of cases by matched snps
-            scores = cbind(scores, t(geno) %*% weight1$effect_weight)}
-          if(ncol(data.frame(geno)) == 1){
-            scores = cbind(scores, geno * weight1$effect_weight)}
-        }
-        
-        if(length(ind) > 1){
-          # imputation 0~2, refallele not matched, use 2-the imputated value to 
-          # change the direction
-          geno[ind,] = 2 - geno[ind,]
-          scores = cbind(scores, t(geno) %*% weight1$effect_weight)
-        }
-        
-        if(length(ind) == 1){
-          if(ncol(data.frame(geno)) == 1) {
-            geno = 2-geno
-            scores = cbind(scores, geno * weight1$effect_weight)
-          } else {
-            geno[ind,] = 2 - geno[ind,]
-            scores = cbind(scores, t(geno) %*% weight1$effect_weight)
-          }
-        }
-        
-      }
-    }
-    if (is.null(scores)==TRUE){
-      cat("No SNPs matched on this chromosome, PGS will be counted as Zero for CHR:" %&% chr %&% "\n")
-      scores <- as.data.table(data.frame(ID = row.names(t(geno)), Value = 0))
-      write.table(scores, file = outfile, sep = "\t", col.names = F, row.names = F, quote = F, append = F)
-    }else{
-      scores = rowSums(scores, na.rm = T)
-      write.table(scores, file = outfile, sep = "\t", col.names = F, row.names = T, quote = F, append = F)
-    }
-    
-    write.table(nvar, file = outfile1, sep = "\t", col.names = F, row.names = F, quote = F, append = F)
-    write.table(valid.nvar, file=outfile2, sep="\t", col.names = F, row.names = F, quote = F, append = F)
-    write.table(umchd.Alle, file=outfile3, sep="\t", col.names = F, row.names = F, quote = F, append = F)
-    
-    }
+## ---------------- helpers ----------------
+strand_flip <- function(x) chartr("ATCG", "TAGC", x)
+
+is_ambiguous <- function(a1, a2) {
+  (a1 %in% c("A","T") & a2 %in% c("A","T")) |
+    (a1 %in% c("C","G") & a2 %in% c("C","G"))
 }
 
-
+## ---------------- main loop ----------------
+for (pop in "main") {
+  
+  outdir <- paste0("./../../", PGS.scoreID[p], "/", pop)
+  dir.create(outdir, showWarnings = FALSE)
+  
+  for (chr in intersect(1:22, unique(weight$chr_name))) {
+    
+    message("Processing chr ", chr)
+    
+    outfile <- paste0(outdir, "/chr.", chr, ".scores.txt")
+    outfile1 <- paste0(outfile, ".nvar")
+    outfile2 <- paste0(outfile, ".valid.nvar")
+    outfile3 <- paste0(outfile, ".n.unmatched.alleles")
+    
+    gdsDir <- "/projects/rpci/wchs/pnfioric/geno_filter_WCHS_Merged_0.01_0.3_AABC_AMBER_FULL/split_files/" %&%
+      pop %&% "/wchs_chr" %&% chr
+    
+    files <- list.files(gdsDir, pattern = "\\.gds$", full.names = TRUE)
+    
+    scores <- NULL
+    nvar <- valid.nvar <- umchd.Alle <- 0
+    
+    for (gdsfile in files) {
+      
+      gds <- GdsGenotypeReader(gdsfile)
+      genoData <- GenotypeData(gds)
+      
+      anno <- data.table(
+        cpos = paste0(getChromosome(gds), ":", getPosition(gds)),
+        A1 = toupper(getAlleleA(gds)),
+        A2 = toupper(getAlleleB(gds))
+      )
+      
+      geno <- getGenotype(genoData, use.names = TRUE)
+      close(gds)
+      
+      m <- merge(
+        anno,
+        weight,
+        by = "cpos",
+        allow.cartesian = FALSE
+      )
+      
+      if (nrow(m) == 0) next
+      
+      m[, allele_match :=
+          (ea == A1 & oa == A2) |
+          (ea == A2 & oa == A1)
+      ]
+      
+      m[, `:=`(
+        ea_flip = strand_flip(ea),
+        oa_flip = strand_flip(oa),
+        ambiguous = is_ambiguous(ea, oa)
+      )]
+      
+      m[, strand_match :=
+          (ea_flip == A1 & oa_flip == A2) |
+          (ea_flip == A2 & oa_flip == A1)
+      ]
+      
+      m[, usable := allele_match | (strand_match & !ambiguous)]
+      
+      m[, effect_weight_aligned :=
+          fifelse(
+            allele_match,
+            effect_weight,
+            fifelse(strand_match & !ambiguous, -effect_weight, NA_real_)
+          )
+      ]
+      
+      m <- m[usable & !is.na(effect_weight_aligned)]
+      
+      if (nrow(m) == 0) next
+      
+      idx <- match(m$cpos, anno$cpos)
+      g <- geno[idx, , drop = FALSE]
+      
+      nvar <- nvar + nrow(m)
+      valid.nvar <- valid.nvar + nrow(m)
+      umchd.Alle <- umchd.Alle + sum(!m$allele_match)
+      
+      s <- t(g) %*% m$effect_weight_aligned
+      scores <- if (is.null(scores)) s else cbind(scores, s)
+    }
+    
+    if (is.null(scores)) {
+      write.table(0, outfile, col.names = FALSE, row.names = FALSE, quote = FALSE)
+    } else {
+      scores <- rowSums(scores)
+      write.table(scores, outfile, col.names = FALSE, quote = FALSE)
+    }
+    
+    write.table(nvar, outfile1, col.names = FALSE, row.names = FALSE, quote = FALSE)
+    write.table(valid.nvar, outfile2, col.names = FALSE, row.names = FALSE, quote = FALSE)
+    write.table(umchd.Alle, outfile3, col.names = FALSE, row.names = FALSE, quote = FALSE)
+  }
+}
